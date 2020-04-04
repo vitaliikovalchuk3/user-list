@@ -1,3 +1,7 @@
 task_create:
-    path: task/create
-    controller: App\Controller\TaskController::create
+    path: task
+    controller: App\Controller\TaskController::getTaskAction
+
+test:
+    path: test
+    controller: App\Controller\TestController::test
