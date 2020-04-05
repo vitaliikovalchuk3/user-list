@@ -62,4 +62,19 @@ class TaskModule implements ITaskModule
 		return $task;
 		
 	}
+	
+	public function create(array $data): Task
+	{
+		$task = new Task();
+		
+		$task->setName($data['name']);
+		$task->setDescription($data['description']);
+		$task->setStatus(TaskStatus::ACTIVE);
+		$task->setCreated(Common::now());
+		$task->setModified(Common::now());
+		
+		$this->taskRepo->save($task);
+		
+		return $task;
+	}
 }

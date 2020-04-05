@@ -4,9 +4,6 @@ namespace App\Controller;
 
 use App\Base\Module\ITaskModule;
 use App\Base\Service\ITaskService;
-use App\Common;
-use App\Entity\Enum\TaskStatus;
-use App\Entity\Task;
 use App\Exceptions\APIExcetion;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
@@ -48,19 +45,16 @@ class TaskController extends AbstractResponseController
 	 * @Rest\Post("/task")
 	 * @return View
 	 */
-	public function createTask(Request $request, ITaskService $service, LoggerInterface $logger): View
+	public function createTask(Request $request, ITaskModule $taskModule, LoggerInterface $logger): View
 	{
-		$task = new Task();
-		
-		$task->setName($request->get('name'));
-		$task->setDescription($request->get('description'));
-		$task->setStatus(TaskStatus::ACTIVE);
-		$task->setCreated(Common::now());
-		$task->setModified(Common::now());
+		$data = [
+			'name' 			=> $request->get('name'),
+			'description' 	=> $request->get('description')
+		];
 		
 		try
 		{
-			$service->saveTask($task);
+			$task = $taskModule->create($data);
 		}
 		catch (\Throwable $e)
 		{
