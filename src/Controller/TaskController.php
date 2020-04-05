@@ -6,7 +6,6 @@ use App\Common;
 use App\Entity\Enum\TaskStatus;
 use App\Entity\Task;
 use App\Service\TaskService;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Psr\Log\LoggerInterface;
@@ -14,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 
-class TaskController extends AbstractFOSRestController
+class TaskController extends AbstractResponseController
 {
 	/**
 	 * @Rest\Get("/task")
@@ -24,11 +23,7 @@ class TaskController extends AbstractFOSRestController
 	{
 		$tasks = $service->getAll();
 		
-		return View::create(
-			[
-				'status' => 'success',
-				'result' => $tasks
-			], Response::HTTP_OK);
+		return $this->success($tasks, Response::HTTP_OK);
 	}
 	
 	/**
@@ -41,16 +36,10 @@ class TaskController extends AbstractFOSRestController
 		
 		if (!$task)
 		{
-			return View::create([
-					'status' => 'error',
-					'message' => 'Item was not found'
-				], Response::HTTP_NOT_FOUND);
+			return $this->fail('Item was not found', Response::HTTP_NOT_FOUND);
 		}
 		
-		return View::create([
-				'status' => 'success',
-				'result' => $task
-			], Response::HTTP_OK);
+		return $this->success($task, Response::HTTP_OK);
 	}
 	
 	/**
@@ -74,17 +63,10 @@ class TaskController extends AbstractFOSRestController
 		catch (\Throwable $e)
 		{
 			$logger->error($e->getMessage());
-			
-			return View::create([
-				'status' => 'error',
-				'message' => 'Unexpected error occurred'
-			], Response::HTTP_INTERNAL_SERVER_ERROR);
+			return $this->fail('Unexpected error occurred', Response::HTTP_INTERNAL_SERVER_ERROR);
 		}
 		
-		return View::create([
-			'status' => 'success',
-			'result' => $task
-		], Response::HTTP_CREATED);
+		return $this->success($task, Response::HTTP_CREATED);
 	}
 	
 	/**
@@ -97,10 +79,7 @@ class TaskController extends AbstractFOSRestController
 		
 		if (!$task)
 		{
-			return View::create([
-				'status' => 'error',
-				'message' => 'Item was not found'
-			], Response::HTTP_NOT_FOUND);
+			return $this->fail('Item was not found', Response::HTTP_NOT_FOUND);
 		}
 		
 		$task->setName($request->get('name'));
@@ -115,33 +94,23 @@ class TaskController extends AbstractFOSRestController
 		catch (\Throwable $e)
 		{
 			$logger->error($e->getMessage());
-			
-			return View::create([
-				'status' => 'error',
-				'message' => 'Unexpected error occurred'
-			], Response::HTTP_INTERNAL_SERVER_ERROR);
+			return $this->fail('Unexpected error occurred', Response::HTTP_INTERNAL_SERVER_ERROR);
 		}
 		
-		return View::create([
-			'status' => 'success',
-			'result' => $task
-		], Response::HTTP_OK);
+		return $this->success($task, Response::HTTP_OK);
 	}
 	
 	/**
 	 * @Rest\Delete("/task/{taskId}")
 	 * @return View
 	 */
-	public function deleteTask(int $taskId, TaskService $service, LoggerInterface $logger)
+	public function deleteTask(int $taskId, TaskService $service, LoggerInterface $logger): View
 	{
 		$task = $service->getById($taskId);
 		
 		if (!$task)
 		{
-			return View::create([
-				'status' => 'error',
-				'message' => 'Item was not found'
-			], Response::HTTP_NOT_FOUND);
+			return $this->fail('Item was not found', Response::HTTP_NOT_FOUND);
 		}
 		
 		try
@@ -151,13 +120,9 @@ class TaskController extends AbstractFOSRestController
 		catch (\Throwable $e)
 		{
 			$logger->error($e->getMessage());
-			
-			return View::create([
-				'status' => 'error',
-				'message' => 'Unexpected error occurred'
-			], Response::HTTP_INTERNAL_SERVER_ERROR);
+			$this->fail('Unexpected error occurred', Response::HTTP_INTERNAL_SERVER_ERROR);
 		}
 		
-		return View::create([], Response::HTTP_NO_CONTENT);
+		return $this->success([], Response::HTTP_NO_CONTENT);
 	}
 }
