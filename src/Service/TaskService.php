@@ -5,7 +5,6 @@ namespace App\Service;
 use App\Base\Repository\ITaskRepository;
 use App\Base\Service\ITaskService;
 use App\Entity\Task;
-use App\Entity\Enum\TaskStatus;
 use Doctrine\ORM\EntityManagerInterface;
 
 
@@ -37,14 +36,6 @@ class TaskService implements ITaskService
 	public function removeTask(Task $task): void
 	{
 		$this->taskRepository->delete($task);
-		$this->entityManager->flush();
-	}
-	
-	public function markAsDone(Task $task): void
-	{
-		$task->setStatus(TaskStatus::COMPLETED);
-		
-		$this->taskRepository->save($task);
 		$this->entityManager->flush();
 	}
 	

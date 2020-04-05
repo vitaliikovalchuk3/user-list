@@ -24,7 +24,6 @@ class TaskRepository implements ITaskRepository
 	{
 		$this->entityManager = $entityManager;
 		$this->objectRepository = $this->entityManager->getRepository(Task::class);
-		
 	}
 	
 	/**
@@ -50,5 +49,18 @@ class TaskRepository implements ITaskRepository
 	public function delete(Task $task): void
 	{
 		$this->entityManager->remove($task);
+	}
+	
+	public function getCurrentActiveTaskId()
+	{
+		return $this->entityManager->createQueryBuilder()
+			->select('t.id')
+			->from(Task::class, 't')
+			->where('t.status = ?1')
+			->orderBy('t.created', 'ASC')
+			->setParameter(1, 'active')
+			->setMaxResults(1)
+			->getQuery()
+			->getSingleScalarResult();
 	}
 }

@@ -2,10 +2,12 @@
 namespace App\Controller;
 
 
+use App\Base\Module\ITaskModule;
+use App\Base\Service\ITaskService;
 use App\Common;
 use App\Entity\Enum\TaskStatus;
 use App\Entity\Task;
-use App\Service\TaskService;
+use App\Exceptions\APIExcetion;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Psr\Log\LoggerInterface;
@@ -19,7 +21,7 @@ class TaskController extends AbstractResponseController
 	 * @Rest\Get("/task")
 	 * @return View
 	 */
-	public function getTasksAction(TaskService $service): View
+	public function getTasksAction(ITaskService $service): View
 	{
 		$tasks = $service->getAll();
 		
@@ -30,7 +32,7 @@ class TaskController extends AbstractResponseController
 	 * @Rest\Get("/task/{taskId}")
 	 * @return View
 	 */
-	public function getTaskAction(int $taskId, TaskService $service): View
+	public function getTaskAction(int $taskId, ITaskService $service): View
 	{
 		$task = $service->getById($taskId);
 		
@@ -46,7 +48,7 @@ class TaskController extends AbstractResponseController
 	 * @Rest\Post("/task")
 	 * @return View
 	 */
-	public function createTask(Request $request, TaskService $service, LoggerInterface $logger): View
+	public function createTask(Request $request, ITaskService $service, LoggerInterface $logger): View
 	{
 		$task = new Task();
 		
@@ -73,23 +75,26 @@ class TaskController extends AbstractResponseController
 	 * @Rest\Put("/task/{taskId}")
 	 * @return View
 	 */
-	public function updateTask(int $taskId, Request $request, TaskService $service, LoggerInterface $logger): View
+	public function updateTask(
+		int $taskId,
+		Request $request,
+		ITaskModule $module,
+		LoggerInterface $logger): View
 	{
-		$task = $service->getById($taskId);
-		
-		if (!$task)
-		{
-			return $this->fail('Item was not found', Response::HTTP_NOT_FOUND);
-		}
-		
-		$task->setName($request->get('name'));
-		$task->setDescription($request->get('description'));
-		$task->setStatus($request->get('status'));
-		$task->setModified(Common::now());
+		$data = [
+			'id' 			=> $taskId,
+			'name' 			=> $request->get('name'),
+			'description' 	=> $request->get('description'),
+			'status' 		=> $request->get('status')
+		];
 		
 		try
 		{
-			$service->saveTask($task);
+			$task = $module->update($data);
+		}
+		catch (APIExcetion $exception)
+		{
+			return $this->fail($exception->getMessage(), $exception->getCode());
 		}
 		catch (\Throwable $e)
 		{
@@ -104,7 +109,7 @@ class TaskController extends AbstractResponseController
 	 * @Rest\Delete("/task/{taskId}")
 	 * @return View
 	 */
-	public function deleteTask(int $taskId, TaskService $service, LoggerInterface $logger): View
+	public function deleteTask(int $taskId, ITaskService $service, LoggerInterface $logger): View
 	{
 		$task = $service->getById($taskId);
 		

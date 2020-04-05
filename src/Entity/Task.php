@@ -39,6 +39,7 @@ class Task
 	
 	/**
 	 *@ORM\Column(type="text")
+	 *@Assert\NotBlank(allowNull = true)
 	 **/
 	private $description;
 	
@@ -112,7 +113,4 @@ class Task
 		
 		$this->status = $status;
 	}
-	
-	
-	
 }
