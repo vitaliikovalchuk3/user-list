@@ -21,13 +21,13 @@ class Task
 	
 	/**
 	 *@ORM\Column(type="string",length=100)
-	 *@Assert\NotBlank()
+	 *@Assert\DateTime
 	 **/
 	private $created;
 	
 	/**
 	 *@ORM\Column(type="string",length=100)
-	 *@Assert\NotBlank()
+	 *@Assert\DateTime
 	 **/
 	private $modified;
 	
@@ -83,7 +83,7 @@ class Task
 		return $this->name;
 	}
 	
-	public function setName($name): void
+	public function setName(string $name): void
 	{
 		$this->name = $name;
 	}
@@ -93,7 +93,7 @@ class Task
 		return $this->description;
 	}
 	
-	public function setDescription($description): void
+	public function setDescription(?string $description): void
 	{
 		$this->description = $description;
 	}
