@@ -4,8 +4,8 @@ namespace App\Service;
 
 use App\Base\Repository\ITaskRepository;
 use App\Base\Service\ITaskService;
-use App\Entity\Enum\TaskStatus;
 use App\Entity\Task;
+use App\Entity\Enum\TaskStatus;
 use Doctrine\ORM\EntityManagerInterface;
 
 
@@ -28,7 +28,7 @@ class TaskService implements ITaskService
 		$this->entityManager = $entityManager;
 	}
 	
-	public function createTask(Task $task): void
+	public function saveTask(Task $task): void
 	{
 		$this->taskRepository->save($task);
 		$this->entityManager->flush();
