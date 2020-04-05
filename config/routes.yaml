@@ -17,7 +17,3 @@ task_update:
 task_delete:
     path: task/{id}
     controller: App\Controller\TaskController::deleteTask
-
-test:
-    path: test
-    controller: App\Controller\TestController::test
